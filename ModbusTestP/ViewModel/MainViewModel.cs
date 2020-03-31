@@ -273,7 +273,7 @@ namespace ModbusTestP.ViewModel
             StatusText = StatusMessages.CONNECT_MSG_1 + Ip +
                 StatusMessages.CONNECT_MSG_2 + Port + "\n";
 
-            modbusTcp = new ModbusTcp(Ip, Port);
+            modbusTcp = new ModbusTcp(null, Port);
             try
             {
                 modbusTcp.StartServer();

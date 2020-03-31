@@ -58,7 +58,7 @@
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Address" Width="165" DisplayMemberBinding="{Binding Address}"/>
-                    <GridViewColumn Header="Data" Width="165" DisplayMemberBinding="{Binding Register}"/>
+                    <GridViewColumn Header="Data" Width="165" DisplayMemberBinding="{Binding RegString}"/>
                 </GridView>
             </ListView.View>
         </ListView>
@@ -71,7 +71,7 @@
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Address" Width="165" DisplayMemberBinding="{Binding Address}"/>
-                    <GridViewColumn Header="Data" Width="165" DisplayMemberBinding="{Binding Register}"/>
+                    <GridViewColumn Header="Data" Width="165" DisplayMemberBinding="{Binding RegString}"/>
                 </GridView>
             </ListView.View>
         </ListView>

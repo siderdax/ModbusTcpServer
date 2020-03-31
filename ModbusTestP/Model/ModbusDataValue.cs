@@ -14,6 +14,14 @@
             private set;
         }
 
+        public string RegString
+        {
+            get
+            {
+                return "0x" + Register.ToString("X4") + "(" + Register.ToString("D") + ")";
+            }
+        }
+
         public bool Coil
         {
             get;
