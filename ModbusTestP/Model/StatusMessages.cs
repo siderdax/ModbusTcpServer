@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ModbusTestP.Model
+﻿namespace ModbusTestP.Model
 {
     public static class StatusMessages
     {
@@ -15,6 +9,8 @@ namespace ModbusTestP.Model
         public const string DISCONNECTED = "Disconnected";
         public const string DISCONNECTION_ERR = "Disconnection error: ";
         public const string SETTINGS_SAVED = "Settings saved";
+        public const string READ_HOLDING_DATA_HEADER = "Read Data: Holding Register";
+        public const string READ_INPUT_DATA_HEADER = "Read Data: Input Register";
         public const string WRITE_HOLDING_MSG_1 = "Written Holding Register, Address:";
         public const string WRITE_HOLDING_MSG_2 = ", Register: ";
         public const string WRITE_INPUT_MSG_1 = "Written Input Register, Address:";

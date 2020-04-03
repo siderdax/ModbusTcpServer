@@ -18,9 +18,12 @@ namespace ModbusTestP.ViewModel
     /// </summary>
     public class MainViewModel : ViewModelBase, IDisposable
     {
+        private const int TAB_SERVER = 0;
+        private const int TAB_CLIENT = 1;
 
         private readonly IDataService _dataService;
         private ModbusTcp modbusTcp;
+        private ModbusIp modbusIp;
 
         #region Base properties
 
@@ -49,6 +52,13 @@ namespace ModbusTestP.ViewModel
             {
                 Set(ref _statusText, value);
             }
+        }
+
+        private int _selectedTabIndex;
+        public int SelectedTabIndex
+        {
+            get { return _selectedTabIndex; }
+            set { Set(ref _selectedTabIndex, value); }
         }
 
         public string Port
@@ -201,7 +211,6 @@ namespace ModbusTestP.ViewModel
         #region ListView properties
 
         private ObservableCollection<ModbusDataValue> _modReadHoldingList;
-
         public ObservableCollection<ModbusDataValue> ModReadHoldingList
         {
             get
@@ -215,7 +224,6 @@ namespace ModbusTestP.ViewModel
         }
 
         private ObservableCollection<ModbusDataValue> _modReadInputList;
-
         public ObservableCollection<ModbusDataValue> ModReadInputList
         {
             get
@@ -270,6 +278,21 @@ namespace ModbusTestP.ViewModel
 
         public void ConnectCmdMethod()
         {
+            switch (SelectedTabIndex)
+            {
+                case TAB_SERVER:
+                    ConnectServerCmdMethod();
+                    break;
+                case TAB_CLIENT:
+                    ConnectClientCmdMethod();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void ConnectServerCmdMethod()
+        {
             StatusText = StatusMessages.CONNECT_MSG_1 + Ip +
                 StatusMessages.CONNECT_MSG_2 + Port + "\n";
 
@@ -289,7 +312,42 @@ namespace ModbusTestP.ViewModel
             StatusText += StatusMessages.SUCCESS;
         }
 
+        public void ConnectClientCmdMethod()
+        {
+            StatusText = StatusMessages.CONNECT_MSG_1 + Ip +
+            StatusMessages.CONNECT_MSG_2 + Port + "\n";
+
+            modbusIp = new ModbusIp(Ip, Port);
+            try
+            {
+                modbusIp.StartClient();
+                modbusIp.StartIpMaster();
+                IsDisconnected = false;
+                timer.Start();
+                StatusText += StatusMessages.SUCCESS;
+            }
+            catch (Exception e)
+            {
+                StatusText += StatusMessages.ERROR_HEADER + e.Message;
+            }
+        }
+
         public void DisconnectCmdMethod()
+        {
+            switch (SelectedTabIndex)
+            {
+                case TAB_SERVER:
+                    DisconnectServerCmdMethod();
+                    break;
+                case TAB_CLIENT:
+                    DisconnectClientCmdMethod();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void DisconnectServerCmdMethod()
         {
             try
             {
@@ -310,13 +368,31 @@ namespace ModbusTestP.ViewModel
             }
         }
 
+        public void DisconnectClientCmdMethod()
+        {
+            try
+            {
+                modbusIp.StopClient();
+                modbusIp.StopIpMaster();
+                IsDisconnected = true;
+                ModReadHoldingList.Clear();
+                ModReadInputList.Clear();
+                StatusText = StatusMessages.DISCONNECTED;
+                timer.Stop();
+            }
+            catch (Exception e)
+            {
+                StatusText = StatusMessages.DISCONNECTION_ERR + e.Message;
+            }
+        }
+
         public void SaveCmdMethod()
         {
-            ModStartReadAddr = ModStartReadAddr > 0 ? ModStartReadAddr : (ushort) 1;
-            ModReadAddrLength = ModReadAddrLength > 0 ? ModReadAddrLength : (ushort) 1;
+            ModStartReadAddr = ModStartReadAddr > 0 ? ModStartReadAddr : (ushort)1;
+            ModReadAddrLength = ModReadAddrLength > 0 ? ModReadAddrLength : (ushort)1;
             if (ModStartReadAddr + ModReadAddrLength > 0x10000)
             {
-                ModReadAddrLength = (ushort) (0x10000 - ModStartReadAddr);
+                ModReadAddrLength = (ushort)(0x10000 - ModStartReadAddr);
             }
             SavedModReadAddrLength = ModReadAddrLength;
             SavedModStartReadAddr = ModStartReadAddr;
@@ -327,12 +403,12 @@ namespace ModbusTestP.ViewModel
             StatusText = StatusMessages.SETTINGS_SAVED;
         }
 
-        public void WriteHoldingCmdMethod()
+        public void WriteHoldingFromServerCmdMethod()
         {
             if (ModWriteHoldingAddr <= 0xFFFF)
             {
                 modbusTcp.WriteTcpSlaveHoldingRegister(SlaveId, ModWriteHoldingAddr, ModWriteHoldingValue);
-                UpdateReadList(ModbusDataTypes.RD_HOLDINGREG);
+                UpdateTcpReadList(ModbusDataTypes.RD_HOLDINGREG);
                 StatusText = StatusMessages.WRITE_HOLDING_MSG_1 + ModWriteHoldingAddr +
                     StatusMessages.WRITE_HOLDING_MSG_2 + ModWriteHoldingValue;
             }
@@ -342,12 +418,34 @@ namespace ModbusTestP.ViewModel
             }
         }
 
+        public void WriteHoldingFromClientCmdMethod()
+        {
+            try
+            {
+                if (ModWriteHoldingAddr <= 0xFFFF)
+                {
+                    modbusIp.WriteMasterHoldingRegister(
+                        SlaveId, ModWriteHoldingAddr, ModWriteHoldingValue);
+                    StatusText = StatusMessages.WRITE_HOLDING_MSG_1 + ModWriteHoldingAddr +
+                        StatusMessages.WRITE_HOLDING_MSG_2 + ModWriteHoldingValue;
+                }
+                else
+                {
+                    StatusText = StatusMessages.INVALID_ADDRESS;
+                }
+            }
+            catch (Exception e)
+            {
+                StatusText = StatusMessages.ERROR_HEADER + e.Message;
+            }
+        }
+
         public void WriteInputCmdMethod()
         {
             if (ModWriteInputAddr <= 0xFFFF)
             {
                 modbusTcp.WriteTcpSlaveInputRegister(SlaveId, ModWriteInputAddr, ModWriteInputValue);
-                UpdateReadList(ModbusDataTypes.RD_INPUTREG);
+                UpdateTcpReadList(ModbusDataTypes.RD_INPUTREG);
                 StatusText = StatusMessages.WRITE_INPUT_MSG_1 + ModWriteInputAddr +
                     StatusMessages.WRITE_INPUT_MSG_2 + ModWriteInputValue;
             }
@@ -359,50 +457,76 @@ namespace ModbusTestP.ViewModel
 
         #endregion
 
-        /// <summary>
-        /// Modbus server Event
-        /// </summary>
-        public void HoldingRegisterChanged(int register, int numberOfRegisters)
-        {
-            if (System.Windows.Application.Current.Dispatcher.CheckAccess())
-                UpdateReadList(ModbusDataTypes.RD_HOLDINGREG);
-            else
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(
-                    System.Windows.Threading.DispatcherPriority.Normal,
-                    new Action(() => UpdateReadList(ModbusDataTypes.RD_HOLDINGREG)));
-
-            StatusText = StatusMessages.HOLDING_CHANGED_MSG_1 + register +
-                StatusMessages.HOLDING_CHANGED_MSG_2 + numberOfRegisters;
-        }
-
         /// Other Functions
 
-        private void UpdateReadList(byte fc)
+        private void UpdateTcpReadList(byte fc)
         {
-            switch (fc)
+            try
             {
-                case ModbusDataTypes.RD_INPUTREG:
-                    for (int idx = 0; idx < SavedModReadAddrLength; idx++)
-                    {
-                        int address = idx + SavedModStartReadAddr;
-                        ushort inputRegister = modbusTcp.ReadTcpSlaveInputRegister(
-                            SlaveId, (ushort) address);
+                switch (fc)
+                {
+                    case ModbusDataTypes.RD_INPUTREG:
+                        for (int idx = 0; idx < SavedModReadAddrLength; idx++)
+                        {
+                            int address = idx + SavedModStartReadAddr;
+                            ushort inputRegister = modbusTcp.ReadTcpSlaveInputRegister(
+                                SlaveId, (ushort)address);
 
-                        UpdateReadItem(ModReadInputList, idx, (ushort) address, inputRegister);
-                    }
-                    break;
-                case ModbusDataTypes.RD_HOLDINGREG:
-                    for (int idx = 0; idx < SavedModReadAddrLength; idx++)
-                    {
-                        int address = idx + SavedModStartReadAddr;
-                        ushort holdingRegister = modbusTcp.ReadTcpSlaveHoldingRegister(
-                            SlaveId, (ushort) address);
+                            UpdateReadItem(ModReadInputList, idx, (ushort)address, inputRegister);
+                        }
+                        break;
+                    case ModbusDataTypes.RD_HOLDINGREG:
+                        for (int idx = 0; idx < SavedModReadAddrLength; idx++)
+                        {
+                            int address = idx + SavedModStartReadAddr;
+                            ushort holdingRegister = modbusTcp.ReadTcpSlaveHoldingRegister(
+                                SlaveId, (ushort)address);
 
-                        UpdateReadItem(ModReadHoldingList, idx, (ushort) address, holdingRegister);
-                    }
-                    break;
-                default:
-                    break;
+                            UpdateReadItem(ModReadHoldingList, idx, (ushort)address, holdingRegister);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                StatusText = e.Message;
+            }
+        }
+
+        private void UpdateIpReadList(byte fc)
+        {
+            ushort[] data;
+            try
+            {
+                switch (fc)
+                {
+                    case ModbusDataTypes.RD_INPUTREG:
+                        data = modbusIp.ReadIpMasterInputRegisters(
+                            SlaveId, SavedModStartReadAddr, SavedModReadAddrLength);
+                        for (int idx = 0; idx < SavedModReadAddrLength; idx++)
+                        {
+                            int address = idx + SavedModStartReadAddr;
+                            UpdateReadItem(ModReadInputList, idx, (ushort)address, data[idx]);
+                        }
+                        break;
+                    case ModbusDataTypes.RD_HOLDINGREG:
+                        data = modbusIp.ReadIpMasterHoldingRegisters(
+                            SlaveId, SavedModStartReadAddr, SavedModReadAddrLength);
+                        for (int idx = 0; idx < SavedModReadAddrLength; idx++)
+                        {
+                            int address = idx + SavedModStartReadAddr;
+                            UpdateReadItem(ModReadHoldingList, idx, (ushort)address, data[idx]);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                StatusText = e.Message;
             }
         }
 
@@ -417,7 +541,7 @@ namespace ModbusTestP.ViewModel
                 if (collection[index].Address != address || collection[index].Register != register)
                 {
                     collection.RemoveAt(index);
-                    collection.Insert(index, new ModbusDataValue((ushort) address, register));
+                    collection.Insert(index, new ModbusDataValue((ushort)address, register));
                 }
             }
 
@@ -431,17 +555,19 @@ namespace ModbusTestP.ViewModel
         {
             if (System.Windows.Application.Current.Dispatcher.CheckAccess())
             {
-                UpdateReadList(ModbusDataTypes.RD_INPUTREG);
-                UpdateReadList(ModbusDataTypes.RD_HOLDINGREG);
+                UpdateTcpReadList(ModbusDataTypes.RD_INPUTREG);
+                UpdateTcpReadList(ModbusDataTypes.RD_HOLDINGREG);
+                UpdateIpReadList(ModbusDataTypes.RD_INPUTREG);
+                UpdateIpReadList(ModbusDataTypes.RD_HOLDINGREG);
             }
             else
             {
                 System.Windows.Application.Current.Dispatcher.BeginInvoke(
                     System.Windows.Threading.DispatcherPriority.Normal,
-                    new Action(() => UpdateReadList(ModbusDataTypes.RD_INPUTREG)));
+                    new Action(() => UpdateTcpReadList(ModbusDataTypes.RD_INPUTREG)));
                 System.Windows.Application.Current.Dispatcher.BeginInvoke(
                     System.Windows.Threading.DispatcherPriority.Normal,
-                    new Action(() => UpdateReadList(ModbusDataTypes.RD_HOLDINGREG)));
+                    new Action(() => UpdateTcpReadList(ModbusDataTypes.RD_HOLDINGREG)));
             }
         }
 
@@ -475,7 +601,7 @@ namespace ModbusTestP.ViewModel
             ConnectCmd = new RelayCommand(ConnectCmdMethod);
             DisconnectCmd = new RelayCommand(DisconnectCmdMethod);
             SaveCmd = new RelayCommand(SaveCmdMethod);
-            WriteHoldingCmd = new RelayCommand(WriteHoldingCmdMethod);
+            WriteHoldingCmd = new RelayCommand(WriteHoldingFromServerCmdMethod);
             WriteInputCmd = new RelayCommand(WriteInputCmdMethod);
 
             ModReadHoldingList = new ObservableCollection<ModbusDataValue>();
@@ -485,6 +611,7 @@ namespace ModbusTestP.ViewModel
             SavedModReadAddrLength = ModReadAddrLength;
 
             IsDisconnected = true;
+            SelectedTabIndex = TAB_SERVER;
 
             // Timer
             DispatcherTimer dispatcherTimer = new DispatcherTimer();

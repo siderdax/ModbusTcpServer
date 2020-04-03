@@ -42,13 +42,23 @@
         </ScrollViewer>
         <Button Content="Connect" HorizontalAlignment="Left" IsEnabled="{Binding IsDisconnected}" Margin="15,165,0,0" VerticalAlignment="Top" Width="94" Height="34" Grid.Column="1" Command="{Binding ConnectCmd, Mode=OneWay}"/>
         <Button Content="Disconnect" HorizontalAlignment="Left" Margin="114,165,0,0" VerticalAlignment="Top" Width="94" Height="34" Grid.Column="1" Command="{Binding DisconnectCmd, Mode=OneWay}"/>
-        <TabControl HorizontalAlignment="Left" Height="150" Margin="10,10,0,0" VerticalAlignment="Top" Width="277" Grid.ColumnSpan="2">
-            <TabItem Header="TCP">
+        <TabControl HorizontalAlignment="Left" Height="150" Margin="10,10,0,0" VerticalAlignment="Top" Width="277" Grid.ColumnSpan="2" SelectedIndex="{Binding SelectedTabIndex}">
+            <TabItem Header="TCP(Server/Slave)">
                 <Grid Background="#FFE5E5E5" Margin="1,1,2,2">
                     <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="88" Margin="11,17,0,0" Stroke="Black" VerticalAlignment="Top" Width="240"/>
 
                     <Label Content="IP &#x9;:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="19,31,0,0" Width="74"/>
                     <TextBox HorizontalAlignment="Left" Height="23" Margin="95,34,0,0" TextWrapping="Wrap" Text="{Binding Ip}" VerticalAlignment="Top" Width="146" IsEnabled="False"/>
+                    <Label Content="PORT&#x9;:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="19,62,0,0" Width="74"/>
+                    <TextBox HorizontalAlignment="Left" Height="24" Margin="95,65,0,0" TextWrapping="Wrap" Text="{Binding Port}" VerticalAlignment="Top" Width="146"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Ip(Client/Master)">
+                <Grid Background="#FFE5E5E5" Margin="1,1,2,2">
+                    <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="88" Margin="11,17,0,0" Stroke="Black" VerticalAlignment="Top" Width="240"/>
+
+                    <Label Content="IP &#x9;:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="19,31,0,0" Width="74"/>
+                    <TextBox HorizontalAlignment="Left" Height="23" Margin="95,34,0,0" TextWrapping="Wrap" Text="{Binding Ip}" VerticalAlignment="Top" Width="146"/>
                     <Label Content="PORT&#x9;:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="19,62,0,0" Width="74"/>
                     <TextBox HorizontalAlignment="Left" Height="24" Margin="95,65,0,0" TextWrapping="Wrap" Text="{Binding Port}" VerticalAlignment="Top" Width="146"/>
                 </Grid>
