@@ -25,6 +25,9 @@ namespace ModbusTestP.ViewModel
         private ModbusTcp modbusTcp;
         private ModbusIp modbusIp;
 
+        private DispatcherTimer timer = null;
+        private EventHandler TcpEventHandler, IpEventHandler;
+
         #region Base properties
 
         private string _statusText = string.Empty;
@@ -40,6 +43,8 @@ namespace ModbusTestP.ViewModel
         private ushort _modWriteInputAddr;
         private ushort _modWriteInputValue;
         private bool _isDisconnected;
+        private bool _isServerConnected;
+        private bool _isClientConnected;
 
         /// Changes to that property's value raise the PropertyChanged event. 
         public string StatusText
@@ -205,6 +210,30 @@ namespace ModbusTestP.ViewModel
             }
         }
 
+        public bool IsServerConnected
+        {
+            get
+            {
+                return _isServerConnected;
+            }
+            set
+            {
+                Set(ref _isServerConnected, value);
+            }
+        }
+
+        public bool IsClientConnected
+        {
+            get
+            {
+                return _isClientConnected;
+            }
+            set
+            {
+                Set(ref _isClientConnected, value);
+            }
+        }
+
         #endregion
 
         /// ListView status properties
@@ -302,6 +331,8 @@ namespace ModbusTestP.ViewModel
                 modbusTcp.StartServer();
                 modbusTcp.StartTcpSlave(SlaveId);
                 IsDisconnected = false;
+                IsServerConnected = true;
+                timer.Tick += TcpEventHandler;
                 timer.Start();
             }
             catch (Exception e)
@@ -323,6 +354,8 @@ namespace ModbusTestP.ViewModel
                 modbusIp.StartClient();
                 modbusIp.StartIpMaster();
                 IsDisconnected = false;
+                IsClientConnected = true;
+                timer.Tick += IpEventHandler;
                 timer.Start();
                 StatusText += StatusMessages.SUCCESS;
             }
@@ -352,15 +385,14 @@ namespace ModbusTestP.ViewModel
             try
             {
                 timer.Stop();
-
+                timer.Tick -= TcpEventHandler;
                 modbusTcp.StopTcpSlave(SlaveId);
                 modbusTcp.StopServer();
-
                 ModReadHoldingList.Clear();
                 ModReadInputList.Clear();
-
                 StatusText = StatusMessages.DISCONNECTED;
                 IsDisconnected = true;
+                IsServerConnected = false;
             }
             catch (Exception e)
             {
@@ -372,13 +404,15 @@ namespace ModbusTestP.ViewModel
         {
             try
             {
+                timer.Stop();
+                timer.Tick -= IpEventHandler;
                 modbusIp.StopClient();
                 modbusIp.StopIpMaster();
-                IsDisconnected = true;
                 ModReadHoldingList.Clear();
                 ModReadInputList.Clear();
                 StatusText = StatusMessages.DISCONNECTED;
-                timer.Stop();
+                IsDisconnected = true;
+                IsServerConnected = false;
             }
             catch (Exception e)
             {
@@ -401,6 +435,21 @@ namespace ModbusTestP.ViewModel
             ModReadHoldingList.Clear();
 
             StatusText = StatusMessages.SETTINGS_SAVED;
+        }
+
+        public void WriteHoldingCmdMethod()
+        {
+            switch(SelectedTabIndex)
+            {
+                case TAB_SERVER:
+                    WriteHoldingFromServerCmdMethod();
+                    break;
+                case TAB_CLIENT:
+                    WriteHoldingFromClientCmdMethod();
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void WriteHoldingFromServerCmdMethod()
@@ -495,6 +544,24 @@ namespace ModbusTestP.ViewModel
             }
         }
 
+        private void TcpTimerTick(object send, EventArgs e)
+        {
+            if (System.Windows.Application.Current.Dispatcher.CheckAccess())
+            {
+                UpdateTcpReadList(ModbusDataTypes.RD_INPUTREG);
+                UpdateTcpReadList(ModbusDataTypes.RD_HOLDINGREG);
+            }
+            else
+            {
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(
+                    System.Windows.Threading.DispatcherPriority.Normal,
+                    new Action(() => UpdateTcpReadList(ModbusDataTypes.RD_INPUTREG)));
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(
+                    System.Windows.Threading.DispatcherPriority.Normal,
+                    new Action(() => UpdateTcpReadList(ModbusDataTypes.RD_HOLDINGREG)));
+            }
+        }
+
         private void UpdateIpReadList(byte fc)
         {
             ushort[] data;
@@ -530,6 +597,24 @@ namespace ModbusTestP.ViewModel
             }
         }
 
+        private void IpTimerTick(object send, EventArgs e)
+        {
+            if (System.Windows.Application.Current.Dispatcher.CheckAccess())
+            {
+                UpdateIpReadList(ModbusDataTypes.RD_INPUTREG);
+                UpdateIpReadList(ModbusDataTypes.RD_HOLDINGREG);
+            }
+            else
+            {
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(
+                    System.Windows.Threading.DispatcherPriority.Normal,
+                    new Action(() => UpdateIpReadList(ModbusDataTypes.RD_INPUTREG)));
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(
+                    System.Windows.Threading.DispatcherPriority.Normal,
+                    new Action(() => UpdateIpReadList(ModbusDataTypes.RD_HOLDINGREG)));
+            }
+        }
+
         private void UpdateReadItem(ObservableCollection<ModbusDataValue> collection, int index, ushort address, ushort register)
         {
             if (collection.Count() <= index)
@@ -545,30 +630,6 @@ namespace ModbusTestP.ViewModel
                 }
             }
 
-        }
-
-        /// <summary>
-        /// Timer
-        /// </summary>
-        private DispatcherTimer timer = null;
-        private void TimerTick(object send, EventArgs e)
-        {
-            if (System.Windows.Application.Current.Dispatcher.CheckAccess())
-            {
-                UpdateTcpReadList(ModbusDataTypes.RD_INPUTREG);
-                UpdateTcpReadList(ModbusDataTypes.RD_HOLDINGREG);
-                UpdateIpReadList(ModbusDataTypes.RD_INPUTREG);
-                UpdateIpReadList(ModbusDataTypes.RD_HOLDINGREG);
-            }
-            else
-            {
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(
-                    System.Windows.Threading.DispatcherPriority.Normal,
-                    new Action(() => UpdateTcpReadList(ModbusDataTypes.RD_INPUTREG)));
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(
-                    System.Windows.Threading.DispatcherPriority.Normal,
-                    new Action(() => UpdateTcpReadList(ModbusDataTypes.RD_HOLDINGREG)));
-            }
         }
 
         /// <summary>
@@ -601,7 +662,7 @@ namespace ModbusTestP.ViewModel
             ConnectCmd = new RelayCommand(ConnectCmdMethod);
             DisconnectCmd = new RelayCommand(DisconnectCmdMethod);
             SaveCmd = new RelayCommand(SaveCmdMethod);
-            WriteHoldingCmd = new RelayCommand(WriteHoldingFromServerCmdMethod);
+            WriteHoldingCmd = new RelayCommand(WriteHoldingCmdMethod);
             WriteInputCmd = new RelayCommand(WriteInputCmdMethod);
 
             ModReadHoldingList = new ObservableCollection<ModbusDataValue>();
@@ -611,13 +672,16 @@ namespace ModbusTestP.ViewModel
             SavedModReadAddrLength = ModReadAddrLength;
 
             IsDisconnected = true;
+            IsServerConnected = false;
+            IsClientConnected = false;
             SelectedTabIndex = TAB_SERVER;
 
             // Timer
             DispatcherTimer dispatcherTimer = new DispatcherTimer();
             timer = dispatcherTimer;
             timer.Interval = TimeSpan.FromMilliseconds(300);
-            timer.Tick += new EventHandler(TimerTick);
+            TcpEventHandler = new EventHandler(TcpTimerTick);
+            IpEventHandler = new EventHandler(IpTimerTick);
         }
 
         public void Dispose()

@@ -4,10 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ignore="http://www.galasoft.ch/ignore"
+        xmlns:cvt="clr-namespace:ModbusTestP.Converter"
         mc:Ignorable="d ignore"
         Height="593.814"
         Width="1072.585"
-        Title="Modbus Tester (Server)"
+        Title="Modbus Tester"
         DataContext="{Binding Main, Source={StaticResource Locator}}" ResizeMode="NoResize">
 
     <Window.Resources>
@@ -15,6 +16,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Skins/MainSkin.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <cvt:BoolReverse x:Key="BoolReverse" />
         </ResourceDictionary>
     </Window.Resources>
 
@@ -40,9 +42,9 @@
                    ScrollViewer.VerticalScrollBarVisibility="Hidden"
                    ScrollViewer.HorizontalScrollBarVisibility="Hidden"/>
         </ScrollViewer>
-        <Button Content="Connect" HorizontalAlignment="Left" IsEnabled="{Binding IsDisconnected}" Margin="15,165,0,0" VerticalAlignment="Top" Width="94" Height="34" Grid.Column="1" Command="{Binding ConnectCmd, Mode=OneWay}"/>
-        <Button Content="Disconnect" HorizontalAlignment="Left" Margin="114,165,0,0" VerticalAlignment="Top" Width="94" Height="34" Grid.Column="1" Command="{Binding DisconnectCmd, Mode=OneWay}"/>
-        <TabControl HorizontalAlignment="Left" Height="150" Margin="10,10,0,0" VerticalAlignment="Top" Width="277" Grid.ColumnSpan="2" SelectedIndex="{Binding SelectedTabIndex}">
+        <Button Content="Connect" HorizontalAlignment="Left" Margin="15,165,0,0" VerticalAlignment="Top" Width="94" Height="34" Grid.Column="1" Command="{Binding ConnectCmd, Mode=OneWay}" IsEnabled="{Binding IsDisconnected}"/>
+        <Button Content="Disconnect" HorizontalAlignment="Left" Margin="114,165,0,0" VerticalAlignment="Top" Width="94" Height="34" Grid.Column="1" Command="{Binding DisconnectCmd, Mode=OneWay}" IsEnabled="{Binding IsDisconnected, Converter={StaticResource BoolReverse}}"/>
+        <TabControl HorizontalAlignment="Left" Height="150" Margin="10,10,0,0" VerticalAlignment="Top" Width="277" Grid.ColumnSpan="2" SelectedIndex="{Binding SelectedTabIndex}" IsEnabled="{Binding IsDisconnected}">
             <TabItem Header="TCP(Server/Slave)">
                 <Grid Background="#FFE5E5E5" Margin="1,1,2,2">
                     <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="88" Margin="11,17,0,0" Stroke="Black" VerticalAlignment="Top" Width="240"/>
@@ -85,16 +87,16 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <Label Content="Address :" Grid.Column="3" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top"/>
-        <TextBox Grid.Column="3" HorizontalAlignment="Left" Height="23" Margin="75,52,0,0" TextWrapping="Wrap" Text="{Binding ModWriteInputAddr}" VerticalAlignment="Top" Width="70"/>
-        <Label Content="Value :" Grid.Column="3" HorizontalAlignment="Left" Margin="150,49,0,0" VerticalAlignment="Top"/>
-        <TextBox Grid.Column="3" HorizontalAlignment="Left" Height="23" Margin="202,52,0,0" TextWrapping="Wrap" Text="{Binding ModWriteInputValue}" VerticalAlignment="Top" Width="88"/>
-        <Button Content="Write" Grid.Column="3" HorizontalAlignment="Left" Margin="299,52,0,0" VerticalAlignment="Top" Width="71" Height="23" Command="{Binding WriteInputCmd, Mode=OneWay}"/>
-        <Label Content="Address :" Grid.Column="2" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top"/>
-        <TextBox Grid.Column="2" HorizontalAlignment="Left" Height="23" Margin="75,52,0,0" TextWrapping="Wrap" Text="{Binding ModWriteHoldingAddr}" VerticalAlignment="Top" Width="70"/>
-        <Label Content="Value :" Grid.Column="2" HorizontalAlignment="Left" Margin="150,49,0,0" VerticalAlignment="Top"/>
-        <TextBox Grid.Column="2" HorizontalAlignment="Left" Height="23" Margin="202,52,0,0" TextWrapping="Wrap" Text="{Binding ModWriteHoldingValue}" VerticalAlignment="Top" Width="88"/>
-        <Button Content="Write" Grid.Column="2" HorizontalAlignment="Left" Margin="299,52,0,0" VerticalAlignment="Top" Width="71" Height="23" Command="{Binding WriteHoldingCmd, Mode=OneWay}"/>
+        <Label Content="Address :" Grid.Column="3" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top" IsEnabled="{Binding IsServerConnected}"/>
+        <TextBox Grid.Column="3" HorizontalAlignment="Left" Height="23" Margin="75,52,0,0" TextWrapping="Wrap" Text="{Binding ModWriteInputAddr}" VerticalAlignment="Top" Width="70" IsEnabled="{Binding IsServerConnected}"/>
+        <Label Content="Value :" Grid.Column="3" HorizontalAlignment="Left" Margin="150,49,0,0" VerticalAlignment="Top" IsEnabled="{Binding IsServerConnected}"/>
+        <TextBox Grid.Column="3" HorizontalAlignment="Left" Height="23" Margin="202,52,0,0" TextWrapping="Wrap" Text="{Binding ModWriteInputValue}" VerticalAlignment="Top" Width="88" IsEnabled="{Binding IsServerConnected}"/>
+        <Button Content="Write" Grid.Column="3" HorizontalAlignment="Left" Margin="299,52,0,0" VerticalAlignment="Top" Width="71" Height="23" Command="{Binding WriteInputCmd, Mode=OneWay}" IsEnabled="{Binding IsServerConnected}"/>
+        <Label Content="Address :" Grid.Column="2" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top" IsEnabled="{Binding IsDisconnected, Converter={StaticResource BoolReverse}}"/>
+        <TextBox Grid.Column="2" HorizontalAlignment="Left" Height="23" Margin="75,52,0,0" TextWrapping="Wrap" Text="{Binding ModWriteHoldingAddr}" VerticalAlignment="Top" Width="70" IsEnabled="{Binding IsDisconnected, Converter={StaticResource BoolReverse}}"/>
+        <Label Content="Value :" Grid.Column="2" HorizontalAlignment="Left" Margin="150,49,0,0" VerticalAlignment="Top" IsEnabled="{Binding IsDisconnected, Converter={StaticResource BoolReverse}}"/>
+        <TextBox Grid.Column="2" HorizontalAlignment="Left" Height="23" Margin="202,52,0,0" TextWrapping="Wrap" Text="{Binding ModWriteHoldingValue}" VerticalAlignment="Top" Width="88" IsEnabled="{Binding IsDisconnected, Converter={StaticResource BoolReverse}}"/>
+        <Button Content="Write" Grid.Column="2" HorizontalAlignment="Left" Margin="299,52,0,0" VerticalAlignment="Top" Width="71" Height="23" Command="{Binding WriteHoldingCmd, Mode=OneWay}" IsEnabled="{Binding IsDisconnected, Converter={StaticResource BoolReverse}}"/>
         <Label Content="Holding Register" Grid.Column="2" HorizontalAlignment="Left" Margin="11,6,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" FontStyle="Italic"/>
         <Label Content="Input Register" Grid.Column="3" HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" FontStyle="Italic"/>
         <Button Content="Set" Grid.Column="3" HorizontalAlignment="Left" Margin="149,518,0,0" VerticalAlignment="Top" Width="75" Height="23" Command="{Binding SaveCmd, Mode=OneWay}"/>
