@@ -10,10 +10,7 @@ namespace ModbusTestP.Design
         public void GetData(Action<DataItem, Exception> callback)
         {
             // Use this to create design time data
-            IPHostEntry ipEntry = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress[] addr = ipEntry.AddressList;
-
-            var item = new DataItem("Modbus Tester [design]", addr[1].ToString(), "502");
+            var item = new DataItem("Modbus Tester", "127.0.0.1", "502");
 
             ModbusDataTypes[] modbusReadTypeSet = {
                 new ModbusDataTypes("Holding Register", 0x03),
