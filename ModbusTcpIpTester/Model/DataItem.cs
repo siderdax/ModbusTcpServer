@@ -2,83 +2,26 @@
 {
     public class DataItem
     {
-        public string StatusText
-        {
-            get;
-            private set;
-        }
+        public string StatusText { get; private set; }
+        public string Ip { get; private set; }
+        public string Port { get; private set; }
+        public string Baud { get; private set; }
+        public ushort DefaultStartReadAddr { get; private set; }
+        public ushort DefaultReadAddrLength { get; private set; }
+        public ushort DefaultWriteHoldingValue { get; private set; }
+        public ushort DefaultWriteHoldingAddr { get; private set; }
+        public ushort DefaultWriteInputValue { get; private set; }
+        public ushort DefaultWriteInputAddr { get; private set; }
+        public byte DefaultSlaveId { get; private set; }
+        public ModbusDataTypes[] ModbusReadTypes { get; private set; }
+        public ModbusDataTypes[] ModbusWriteTypes { get; private set; }
 
-        public string Ip
-        {
-            get;
-            private set;
-        }
-
-        public string Port
-        {
-            get;
-            private set;
-        }
-
-        public ushort DefaultStartReadAddr
-        {
-            get;
-            private set;
-        }
-
-        public ushort DefaultReadAddrLength
-        {
-            get;
-            private set;
-        }
-
-        public ushort DefaultWriteHoldingValue
-        {
-            get;
-            private set;
-        }
-
-        public ushort DefaultWriteHoldingAddr
-        {
-            get;
-            private set;
-        }
-
-        public ushort DefaultWriteInputValue
-        {
-            get;
-            private set;
-        }
-
-        public ushort DefaultWriteInputAddr
-        {
-            get;
-            private set;
-        }
-
-        public byte DefaultSlaveId
-        {
-            get;
-            private set;
-        }
-
-        public ModbusDataTypes[] ModbusReadTypes
-        {
-            get;
-            private set;
-        }
-
-        public ModbusDataTypes[] ModbusWriteTypes
-        {
-            get;
-            private set;
-        }
-
-        public DataItem(string statusText, string ip, string port)
+        public DataItem(string statusText, string ip, string port, string baud)
         {
             StatusText = statusText;
             Ip = ip;
             Port = port;
+            Baud = baud;
         }
 
         public void SetModbusReadTypes(ModbusDataTypes[] mdt)

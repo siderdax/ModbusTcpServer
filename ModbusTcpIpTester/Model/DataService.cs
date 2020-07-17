@@ -11,7 +11,7 @@ namespace ModbusTestP.Model
         public void GetData(Action<DataItem, Exception> callback)
         {
             // Use this to connect to the actual data service
-            var item = new DataItem("Modbus Tester", "127.0.0.1", "502");
+            var item = new DataItem("Modbus Tester", "127.0.0.1", "502", "9600");
 
             ModbusDataTypes[] modbusReadTypeSet = {
                 new ModbusDataTypes("Holding Register", ModbusDataTypes.RD_HOLDINGREG),

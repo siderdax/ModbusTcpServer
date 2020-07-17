@@ -12,7 +12,7 @@ namespace ModbusTestP.Design
         public void GetData(Action<DataItem, Exception> callback)
         {
             // Use this to create design time data
-            var item = new DataItem("Modbus Tester", "127.0.0.1", "502");
+            var item = new DataItem("Modbus Tester", "127.0.0.1", "502", "9600");
 
             ModbusDataTypes[] modbusReadTypeSet = {
                 new ModbusDataTypes("Holding Register", 0x03),

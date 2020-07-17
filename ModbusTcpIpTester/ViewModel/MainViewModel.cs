@@ -31,6 +31,8 @@ namespace ModbusTestP.ViewModel
         private string _statusText = string.Empty;
         private string _port = string.Empty;
         private string _ip = string.Empty;
+        private string _com = string.Empty;
+        private string _baud = string.Empty;
         private byte _slaveId;
         private ushort _modStartReadAddr;
         private ushort _modReadAddrLength;
@@ -68,6 +70,18 @@ namespace ModbusTestP.ViewModel
         {
             get => _ip;
             set => Set(ref _ip, value);
+        }
+
+        public string Com
+        {
+            get => _com;
+            set => Set(ref _com, value);
+        }
+
+        public string Baud
+        {
+            get => _baud;
+            set => Set(ref _baud, value);
         }
 
         public byte SlaveId
@@ -511,6 +525,8 @@ namespace ModbusTestP.ViewModel
                     StatusText = item.StatusText;
                     Ip = item.Ip;
                     Port = item.Port;
+                    Com = System.IO.Ports.SerialPort.GetPortNames().FirstOrDefault();
+                    Baud = item.Baud;
                     ModStartReadAddr = item.DefaultStartReadAddr;
                     ModReadAddrLength = item.DefaultReadAddrLength;
                     ModWriteHoldingAddr = item.DefaultWriteHoldingAddr;
