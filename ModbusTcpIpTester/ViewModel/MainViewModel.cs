@@ -20,6 +20,8 @@ namespace ModbusTestP.ViewModel
     {
         private const int TAB_SERVER = 0;
         private const int TAB_CLIENT = 1;
+        private const int TAB_SLAVE = 2;
+        private const int TAB_MASTER = 3;
 
         private readonly IDataService _dataService;
 
@@ -196,50 +198,126 @@ namespace ModbusTestP.ViewModel
             switch (SelectedTabIndex)
             {
                 case TAB_SERVER:
-                    ConnectServerCmdMethod();
+                    ConnectServer();
                     break;
                 case TAB_CLIENT:
-                    ConnectClientCmdMethod();
+                    ConnectClient();
+                    break;
+                case TAB_SLAVE:
+                    ConnectSlave();
+                    break;
+                case TAB_MASTER:
+                    ConnectMaster();
                     break;
                 default:
                     break;
             }
         }
 
-        public void ConnectServerCmdMethod()
+        public void DisconnectCmdMethod()
         {
-            StatusText = StatusMessages.CONNECT_MSG_1 + Ip + StatusMessages.CONNECT_MSG_2 + Port + "\n";
-
-            _dataService.ModbusTCP = new ModbusTcp(null, Port);
-            try
+            switch (SelectedTabIndex)
             {
-                _dataService.ModbusTCP.StartServer();
-                _dataService.ModbusTCP.StartTcpSlave(SlaveId);
-                IsDisconnected = false;
-                IsServerConnected = true;
-                timer.Tick += TcpEventHandler;
-                timer.Start();
+                case TAB_SERVER:
+                    DisconnectServer();
+                    break;
+                case TAB_CLIENT:
+                    DisconnectClient();
+                    break;
+                case TAB_SLAVE:
+                    DisconnectSlave();
+                    break;
+                case TAB_MASTER:
+                    DisconnectMaster();
+                    break;
+                default:
+                    break;
             }
-            catch (Exception e)
-            {
-                StatusText += StatusMessages.ERROR_HEADER + e.Message;
-            }
-
-            StatusText += StatusMessages.SUCCESS;
         }
 
-        public void ConnectClientCmdMethod()
+        public void ConnectServer()
+        {
+            Connect(() =>
+            {
+                _dataService.ModbusTCP = new ModbusTcp(null, Port);
+                _dataService.ModbusTCP.StartServer();
+                _dataService.ModbusTCP.StartTcpSlave(SlaveId);
+                timer.Tick += TcpEventHandler;
+            });
+        }
+
+        public void ConnectClient()
+        {
+            Connect(() =>
+            {
+                _dataService.ModbusIP = new ModbusIp(Ip, Port);
+                _dataService.ModbusIP.StartClient();
+                _dataService.ModbusIP.StartIpMaster();
+                timer.Tick += IpEventHandler;
+            });
+        }
+
+        public void ConnectSlave()
+        {
+            Connect(() =>
+            {
+                // Connect
+            });
+        }
+
+        public void ConnectMaster()
+        {
+            Connect(() =>
+            {
+                // Connect
+            });
+        }
+
+        public void DisconnectServer()
+        {
+            Disconnect(() =>
+            {
+                timer.Tick -= TcpEventHandler;
+                _dataService.ModbusTCP.StopTcpSlave(SlaveId);
+                _dataService.ModbusTCP.StopServer();
+            });
+        }
+
+        public void DisconnectClient()
+        {
+            Disconnect(() =>
+            {
+                timer.Tick -= IpEventHandler;
+                _dataService.ModbusIP.StopClient();
+                _dataService.ModbusIP.StopIpMaster();
+            });
+        }
+
+        public void DisconnectSlave()
+        {
+            Disconnect(() =>
+            {
+                // Disconnect
+            });
+        }
+
+        public void DisconnectMaster()
+        {
+            Disconnect(() =>
+            {
+                // Disconnect
+            });
+        }
+
+        private void Connect(Action connectAction)
         {
             StatusText = StatusMessages.CONNECT_MSG_1 + Ip + StatusMessages.CONNECT_MSG_2 + Port + "\n";
 
-            _dataService.ModbusIP = new ModbusIp(Ip, Port);
             try
             {
-                _dataService.ModbusIP.StartClient();
-                _dataService.ModbusIP.StartIpMaster();
+                connectAction();
                 IsDisconnected = false;
                 IsClientConnected = true;
-                timer.Tick += IpEventHandler;
                 timer.Start();
                 StatusText += StatusMessages.SUCCESS;
             }
@@ -249,49 +327,12 @@ namespace ModbusTestP.ViewModel
             }
         }
 
-        public void DisconnectCmdMethod()
-        {
-            switch (SelectedTabIndex)
-            {
-                case TAB_SERVER:
-                    DisconnectServerCmdMethod();
-                    break;
-                case TAB_CLIENT:
-                    DisconnectClientCmdMethod();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public void DisconnectServerCmdMethod()
+        public void Disconnect(Action disconnectAction)
         {
             try
             {
                 timer.Stop();
-                timer.Tick -= TcpEventHandler;
-                _dataService.ModbusTCP.StopTcpSlave(SlaveId);
-                _dataService.ModbusTCP.StopServer();
-                ModReadHoldingList.Clear();
-                ModReadInputList.Clear();
-                StatusText = StatusMessages.DISCONNECTED;
-                IsDisconnected = true;
-                IsServerConnected = false;
-            }
-            catch (Exception e)
-            {
-                StatusText = StatusMessages.DISCONNECTION_ERR + e.Message;
-            }
-        }
-
-        public void DisconnectClientCmdMethod()
-        {
-            try
-            {
-                timer.Stop();
-                timer.Tick -= IpEventHandler;
-                _dataService.ModbusIP.StopClient();
-                _dataService.ModbusIP.StopIpMaster();
+                disconnectAction();
                 ModReadHoldingList.Clear();
                 ModReadInputList.Clear();
                 StatusText = StatusMessages.DISCONNECTED;
@@ -331,6 +372,8 @@ namespace ModbusTestP.ViewModel
                 case TAB_CLIENT:
                     WriteHoldingFromClient();
                     break;
+                case TAB_SLAVE:
+                case TAB_MASTER:
                 default:
                     break;
             }
