@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Data;
-using System.Net;
+using ModbusTcpIp;
 using ModbusTestP.Model;
 
 namespace ModbusTestP.Design
 {
     public class DesignDataService : IDataService
     {
+        public ModbusTcp ModbusTCP { get; set; }
+        public ModbusIp ModbusIP { get; set; }
+        
         public void GetData(Action<DataItem, Exception> callback)
         {
             // Use this to create design time data

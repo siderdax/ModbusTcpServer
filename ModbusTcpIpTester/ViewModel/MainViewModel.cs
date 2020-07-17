@@ -22,8 +22,6 @@ namespace ModbusTestP.ViewModel
         private const int TAB_CLIENT = 1;
 
         private readonly IDataService _dataService;
-        private ModbusTcp modbusTcp;
-        private ModbusIp modbusIp;
 
         private DispatcherTimer timer = null;
         private EventHandler TcpEventHandler, IpEventHandler;
@@ -49,189 +47,99 @@ namespace ModbusTestP.ViewModel
         /// Changes to that property's value raise the PropertyChanged event. 
         public string StatusText
         {
-            get
-            {
-                return _statusText;
-            }
-            set
-            {
-                Set(ref _statusText, value);
-            }
+            get => _statusText;
+            set => Set(ref _statusText, value);
         }
 
         private int _selectedTabIndex;
         public int SelectedTabIndex
         {
-            get { return _selectedTabIndex; }
-            set { Set(ref _selectedTabIndex, value); }
+            get => _selectedTabIndex;
+            set => Set(ref _selectedTabIndex, value);
         }
 
         public string Port
         {
-            get
-            {
-                return _port;
-            }
-            set
-            {
-                Set(ref _port, value);
-            }
+            get => _port;
+            set => Set(ref _port, value);
         }
 
         public string Ip
         {
-            get
-            {
-                return _ip;
-            }
-            set
-            {
-                Set(ref _ip, value);
-            }
+            get => _ip;
+            set => Set(ref _ip, value);
         }
 
         public byte SlaveId
         {
-            get
-            {
-                return _slaveId;
-            }
-            set
-            {
-                Set(ref _slaveId, value);
-            }
+            get => _slaveId;
+            set => Set(ref _slaveId, value);
         }
 
         public ushort ModStartReadAddr
         {
-            get
-            {
-                return _modStartReadAddr;
-            }
-            set
-            {
-                Set(ref _modStartReadAddr, value);
-            }
+            get => _modStartReadAddr;
+            set => Set(ref _modStartReadAddr, value);
         }
 
         public ushort ModReadAddrLength
         {
-            get
-            {
-                return _modReadAddrLength;
-            }
-            set
-            {
-                Set(ref _modReadAddrLength, value);
-            }
+            get => _modReadAddrLength;
+            set => Set(ref _modReadAddrLength, value);
         }
 
         public ushort SavedModStartReadAddr
         {
-            get
-            {
-                return _savedModStartReadAddr;
-            }
-            set
-            {
-                Set(ref _savedModStartReadAddr, value);
-            }
+            get => _savedModStartReadAddr;
+            set => Set(ref _savedModStartReadAddr, value);
         }
 
         public ushort SavedModReadAddrLength
         {
-            get
-            {
-                return _savedModReadAddrLength;
-            }
-            set
-            {
-                Set(ref _savedModReadAddrLength, value);
-            }
+            get => _savedModReadAddrLength;
+            set => Set(ref _savedModReadAddrLength, value);
         }
 
         public ushort ModWriteHoldingAddr
         {
-            get
-            {
-                return _modWriteHoldingAddr;
-            }
-            set
-            {
-                Set(ref _modWriteHoldingAddr, value);
-            }
+            get => _modWriteHoldingAddr;
+            set => Set(ref _modWriteHoldingAddr, value);
         }
 
         public ushort ModWriteHoldingValue
         {
-            get
-            {
-                return _modWriteHoldingValue;
-            }
-            set
-            {
-                Set(ref _modWriteHoldingValue, value);
-            }
+            get => _modWriteHoldingValue;
+            set => Set(ref _modWriteHoldingValue, value);
         }
 
         public ushort ModWriteInputAddr
         {
-            get
-            {
-                return _modWriteInputAddr;
-            }
-            set
-            {
-                Set(ref _modWriteInputAddr, value);
-            }
+            get => _modWriteInputAddr;
+            set => Set(ref _modWriteInputAddr, value);
         }
 
         public ushort ModWriteInputValue
         {
-            get
-            {
-                return _modWriteInputValue;
-            }
-            set
-            {
-                Set(ref _modWriteInputValue, value);
-            }
+            get => _modWriteInputValue;
+            set => Set(ref _modWriteInputValue, value);
         }
 
         public bool IsDisconnected
         {
-            get
-            {
-                return _isDisconnected;
-            }
-            set
-            {
-                Set(ref _isDisconnected, value);
-            }
+            get => _isDisconnected;
+            set => Set(ref _isDisconnected, value);
         }
 
         public bool IsServerConnected
         {
-            get
-            {
-                return _isServerConnected;
-            }
-            set
-            {
-                Set(ref _isServerConnected, value);
-            }
+            get => _isServerConnected;
+            set => Set(ref _isServerConnected, value);
         }
 
         public bool IsClientConnected
         {
-            get
-            {
-                return _isClientConnected;
-            }
-            set
-            {
-                Set(ref _isClientConnected, value);
-            }
+            get => _isClientConnected;
+            set => Set(ref _isClientConnected, value);
         }
 
         #endregion
@@ -242,27 +150,15 @@ namespace ModbusTestP.ViewModel
         private ObservableCollection<ModbusDataValue> _modReadHoldingList;
         public ObservableCollection<ModbusDataValue> ModReadHoldingList
         {
-            get
-            {
-                return _modReadHoldingList;
-            }
-            set
-            {
-                Set(ref _modReadHoldingList, value);
-            }
+            get => _modReadHoldingList;
+            set => Set(ref _modReadHoldingList, value);
         }
 
         private ObservableCollection<ModbusDataValue> _modReadInputList;
         public ObservableCollection<ModbusDataValue> ModReadInputList
         {
-            get
-            {
-                return _modReadInputList;
-            }
-            set
-            {
-                Set(ref _modReadInputList, value);
-            }
+            get => _modReadInputList;
+            set => Set(ref _modReadInputList, value);
         }
 
         #endregion
@@ -270,35 +166,11 @@ namespace ModbusTestP.ViewModel
         /// Button commands
         #region Button command properties
 
-        public ICommand ConnectCmd
-        {
-            get;
-            private set;
-        }
-
-        public ICommand DisconnectCmd
-        {
-            get;
-            private set;
-        }
-
-        public ICommand SaveCmd
-        {
-            get;
-            private set;
-        }
-
-        public ICommand WriteHoldingCmd
-        {
-            get;
-            private set;
-        }
-
-        public ICommand WriteInputCmd
-        {
-            get;
-            private set;
-        }
+        public ICommand ConnectCmd { get; private set; }
+        public ICommand DisconnectCmd { get; private set; }
+        public ICommand SaveCmd { get; private set; }
+        public ICommand WriteHoldingCmd { get; private set; }
+        public ICommand WriteInputCmd { get; private set; }
 
         #endregion
 
@@ -322,14 +194,13 @@ namespace ModbusTestP.ViewModel
 
         public void ConnectServerCmdMethod()
         {
-            StatusText = StatusMessages.CONNECT_MSG_1 + Ip +
-                StatusMessages.CONNECT_MSG_2 + Port + "\n";
+            StatusText = StatusMessages.CONNECT_MSG_1 + Ip + StatusMessages.CONNECT_MSG_2 + Port + "\n";
 
-            modbusTcp = new ModbusTcp(null, Port);
+            _dataService.ModbusTCP = new ModbusTcp(null, Port);
             try
             {
-                modbusTcp.StartServer();
-                modbusTcp.StartTcpSlave(SlaveId);
+                _dataService.ModbusTCP.StartServer();
+                _dataService.ModbusTCP.StartTcpSlave(SlaveId);
                 IsDisconnected = false;
                 IsServerConnected = true;
                 timer.Tick += TcpEventHandler;
@@ -345,14 +216,13 @@ namespace ModbusTestP.ViewModel
 
         public void ConnectClientCmdMethod()
         {
-            StatusText = StatusMessages.CONNECT_MSG_1 + Ip +
-            StatusMessages.CONNECT_MSG_2 + Port + "\n";
+            StatusText = StatusMessages.CONNECT_MSG_1 + Ip + StatusMessages.CONNECT_MSG_2 + Port + "\n";
 
-            modbusIp = new ModbusIp(Ip, Port);
+            _dataService.ModbusIP = new ModbusIp(Ip, Port);
             try
             {
-                modbusIp.StartClient();
-                modbusIp.StartIpMaster();
+                _dataService.ModbusIP.StartClient();
+                _dataService.ModbusIP.StartIpMaster();
                 IsDisconnected = false;
                 IsClientConnected = true;
                 timer.Tick += IpEventHandler;
@@ -386,8 +256,8 @@ namespace ModbusTestP.ViewModel
             {
                 timer.Stop();
                 timer.Tick -= TcpEventHandler;
-                modbusTcp.StopTcpSlave(SlaveId);
-                modbusTcp.StopServer();
+                _dataService.ModbusTCP.StopTcpSlave(SlaveId);
+                _dataService.ModbusTCP.StopServer();
                 ModReadHoldingList.Clear();
                 ModReadInputList.Clear();
                 StatusText = StatusMessages.DISCONNECTED;
@@ -406,8 +276,8 @@ namespace ModbusTestP.ViewModel
             {
                 timer.Stop();
                 timer.Tick -= IpEventHandler;
-                modbusIp.StopClient();
-                modbusIp.StopIpMaster();
+                _dataService.ModbusIP.StopClient();
+                _dataService.ModbusIP.StopIpMaster();
                 ModReadHoldingList.Clear();
                 ModReadInputList.Clear();
                 StatusText = StatusMessages.DISCONNECTED;
@@ -439,24 +309,24 @@ namespace ModbusTestP.ViewModel
 
         public void WriteHoldingCmdMethod()
         {
-            switch(SelectedTabIndex)
+            switch (SelectedTabIndex)
             {
                 case TAB_SERVER:
-                    WriteHoldingFromServerCmdMethod();
+                    WriteHoldingFromServer();
                     break;
                 case TAB_CLIENT:
-                    WriteHoldingFromClientCmdMethod();
+                    WriteHoldingFromClient();
                     break;
                 default:
                     break;
             }
         }
 
-        public void WriteHoldingFromServerCmdMethod()
+        public void WriteHoldingFromServer()
         {
             if (ModWriteHoldingAddr <= 0xFFFF)
             {
-                modbusTcp.WriteTcpSlaveHoldingRegister(SlaveId, ModWriteHoldingAddr, ModWriteHoldingValue);
+                _dataService.ModbusTCP.WriteTcpSlaveHoldingRegister(SlaveId, ModWriteHoldingAddr, ModWriteHoldingValue);
                 UpdateTcpReadList(ModbusDataTypes.RD_HOLDINGREG);
                 StatusText = StatusMessages.WRITE_HOLDING_MSG_1 + ModWriteHoldingAddr +
                     StatusMessages.WRITE_HOLDING_MSG_2 + ModWriteHoldingValue;
@@ -467,13 +337,13 @@ namespace ModbusTestP.ViewModel
             }
         }
 
-        public void WriteHoldingFromClientCmdMethod()
+        public void WriteHoldingFromClient()
         {
             try
             {
                 if (ModWriteHoldingAddr <= 0xFFFF)
                 {
-                    modbusIp.WriteMasterHoldingRegister(
+                    _dataService.ModbusIP.WriteMasterHoldingRegister(
                         SlaveId, ModWriteHoldingAddr, ModWriteHoldingValue);
                     StatusText = StatusMessages.WRITE_HOLDING_MSG_1 + ModWriteHoldingAddr +
                         StatusMessages.WRITE_HOLDING_MSG_2 + ModWriteHoldingValue;
@@ -493,7 +363,7 @@ namespace ModbusTestP.ViewModel
         {
             if (ModWriteInputAddr <= 0xFFFF)
             {
-                modbusTcp.WriteTcpSlaveInputRegister(SlaveId, ModWriteInputAddr, ModWriteInputValue);
+                _dataService.ModbusTCP.WriteTcpSlaveInputRegister(SlaveId, ModWriteInputAddr, ModWriteInputValue);
                 UpdateTcpReadList(ModbusDataTypes.RD_INPUTREG);
                 StatusText = StatusMessages.WRITE_INPUT_MSG_1 + ModWriteInputAddr +
                     StatusMessages.WRITE_INPUT_MSG_2 + ModWriteInputValue;
@@ -508,6 +378,15 @@ namespace ModbusTestP.ViewModel
 
         /// Other Functions
 
+        private void TcpTimerTick(object send, EventArgs e)
+        {
+            InvokeDispatcher(() =>
+            {
+                UpdateTcpReadList(ModbusDataTypes.RD_INPUTREG);
+                UpdateTcpReadList(ModbusDataTypes.RD_HOLDINGREG);
+            });
+        }
+
         private void UpdateTcpReadList(byte fc)
         {
             try
@@ -517,21 +396,19 @@ namespace ModbusTestP.ViewModel
                     case ModbusDataTypes.RD_INPUTREG:
                         for (int idx = 0; idx < SavedModReadAddrLength; idx++)
                         {
-                            int address = idx + SavedModStartReadAddr;
-                            ushort inputRegister = modbusTcp.ReadTcpSlaveInputRegister(
-                                SlaveId, (ushort)address);
+                            ushort address = (ushort)(idx + SavedModStartReadAddr);
+                            ushort inputRegister = _dataService.ModbusTCP.ReadTcpSlaveInputRegister(SlaveId, address);
 
-                            UpdateReadItem(ModReadInputList, idx, (ushort)address, inputRegister);
+                            UpdateReadItem(ModReadInputList, idx, address, inputRegister);
                         }
                         break;
                     case ModbusDataTypes.RD_HOLDINGREG:
                         for (int idx = 0; idx < SavedModReadAddrLength; idx++)
                         {
-                            int address = idx + SavedModStartReadAddr;
-                            ushort holdingRegister = modbusTcp.ReadTcpSlaveHoldingRegister(
-                                SlaveId, (ushort)address);
+                            ushort address = (ushort)(idx + SavedModStartReadAddr);
+                            ushort holdingRegister = _dataService.ModbusTCP.ReadTcpSlaveHoldingRegister(SlaveId, address);
 
-                            UpdateReadItem(ModReadHoldingList, idx, (ushort)address, holdingRegister);
+                            UpdateReadItem(ModReadHoldingList, idx, address, holdingRegister);
                         }
                         break;
                     default:
@@ -544,33 +421,25 @@ namespace ModbusTestP.ViewModel
             }
         }
 
-        private void TcpTimerTick(object send, EventArgs e)
+        private void IpTimerTick(object send, EventArgs e)
         {
-            if (System.Windows.Application.Current.Dispatcher.CheckAccess())
+            InvokeDispatcher(() =>
             {
-                UpdateTcpReadList(ModbusDataTypes.RD_INPUTREG);
-                UpdateTcpReadList(ModbusDataTypes.RD_HOLDINGREG);
-            }
-            else
-            {
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(
-                    System.Windows.Threading.DispatcherPriority.Normal,
-                    new Action(() => UpdateTcpReadList(ModbusDataTypes.RD_INPUTREG)));
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(
-                    System.Windows.Threading.DispatcherPriority.Normal,
-                    new Action(() => UpdateTcpReadList(ModbusDataTypes.RD_HOLDINGREG)));
-            }
+                UpdateIpReadList(ModbusDataTypes.RD_INPUTREG);
+                UpdateIpReadList(ModbusDataTypes.RD_HOLDINGREG);
+            });
         }
 
         private void UpdateIpReadList(byte fc)
         {
             ushort[] data;
+
             try
             {
                 switch (fc)
                 {
                     case ModbusDataTypes.RD_INPUTREG:
-                        data = modbusIp.ReadIpMasterInputRegisters(
+                        data = _dataService.ModbusIP.ReadIpMasterInputRegisters(
                             SlaveId, SavedModStartReadAddr, SavedModReadAddrLength);
                         for (int idx = 0; idx < SavedModReadAddrLength; idx++)
                         {
@@ -579,7 +448,7 @@ namespace ModbusTestP.ViewModel
                         }
                         break;
                     case ModbusDataTypes.RD_HOLDINGREG:
-                        data = modbusIp.ReadIpMasterHoldingRegisters(
+                        data = _dataService.ModbusIP.ReadIpMasterHoldingRegisters(
                             SlaveId, SavedModStartReadAddr, SavedModReadAddrLength);
                         for (int idx = 0; idx < SavedModReadAddrLength; idx++)
                         {
@@ -597,39 +466,31 @@ namespace ModbusTestP.ViewModel
             }
         }
 
-        private void IpTimerTick(object send, EventArgs e)
-        {
-            if (System.Windows.Application.Current.Dispatcher.CheckAccess())
-            {
-                UpdateIpReadList(ModbusDataTypes.RD_INPUTREG);
-                UpdateIpReadList(ModbusDataTypes.RD_HOLDINGREG);
-            }
-            else
-            {
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(
-                    System.Windows.Threading.DispatcherPriority.Normal,
-                    new Action(() => UpdateIpReadList(ModbusDataTypes.RD_INPUTREG)));
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(
-                    System.Windows.Threading.DispatcherPriority.Normal,
-                    new Action(() => UpdateIpReadList(ModbusDataTypes.RD_HOLDINGREG)));
-            }
-        }
-
         private void UpdateReadItem(ObservableCollection<ModbusDataValue> collection, int index, ushort address, ushort register)
         {
             if (collection.Count() <= index)
             {
                 collection.Add(new ModbusDataValue(address, register));
             }
+            else if (collection[index].Address != address || collection[index].Register != register)
+            {
+                collection.RemoveAt(index);
+                collection.Insert(index, new ModbusDataValue((ushort)address, register));
+            }
+        }
+
+        private void InvokeDispatcher(Action action)
+        {
+            if (System.Windows.Application.Current.Dispatcher.CheckAccess())
+            {
+                action();
+            }
             else
             {
-                if (collection[index].Address != address || collection[index].Register != register)
-                {
-                    collection.RemoveAt(index);
-                    collection.Insert(index, new ModbusDataValue((ushort)address, register));
-                }
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(
+                    System.Windows.Threading.DispatcherPriority.Normal,
+                    new Action(() => action()));
             }
-
         }
 
         /// <summary>
@@ -679,7 +540,7 @@ namespace ModbusTestP.ViewModel
             // Timer
             DispatcherTimer dispatcherTimer = new DispatcherTimer();
             timer = dispatcherTimer;
-            timer.Interval = TimeSpan.FromMilliseconds(300);
+            timer.Interval = TimeSpan.FromMilliseconds(1000);
             TcpEventHandler = new EventHandler(TcpTimerTick);
             IpEventHandler = new EventHandler(IpTimerTick);
         }
@@ -694,7 +555,7 @@ namespace ModbusTestP.ViewModel
         {
             if (disposing)
             {
-                modbusTcp.Dispose();
+                _dataService.ModbusTCP.Dispose();
             }
         }
 

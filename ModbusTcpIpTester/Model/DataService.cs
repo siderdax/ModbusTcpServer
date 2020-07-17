@@ -1,10 +1,13 @@
 ﻿using System;
-using System.Net;
+using ModbusTcpIp;
 
 namespace ModbusTestP.Model
 {
     public class DataService : IDataService
-    {
+    {    
+        public ModbusTcp ModbusTCP { get; set; }
+        public ModbusIp ModbusIP { get; set; }
+
         public void GetData(Action<DataItem, Exception> callback)
         {
             // Use this to connect to the actual data service
