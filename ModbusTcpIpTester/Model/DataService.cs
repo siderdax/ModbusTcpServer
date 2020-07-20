@@ -7,6 +7,8 @@ namespace ModbusTestP.Model
     {    
         public ModbusTcp ModbusTCP { get; set; }
         public ModbusIp ModbusIP { get; set; }
+        public ModbusSlave ModbusSlave { get; set; }
+        public ModbusMaster ModbusMaster { get; set; }
 
         public void GetData(Action<DataItem, Exception> callback)
         {
