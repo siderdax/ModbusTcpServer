@@ -6,7 +6,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
-using ModbusTcpIp;
+using ModbusCom;
 using ModbusTestP.Model;
 
 namespace ModbusTestP.ViewModel

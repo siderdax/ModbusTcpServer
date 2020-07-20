@@ -1,5 +1,5 @@
 ﻿using System;
-using ModbusTcpIp;
+using ModbusCom;
 
 namespace ModbusTestP.Model
 {
