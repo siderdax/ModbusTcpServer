@@ -695,20 +695,19 @@ namespace ModbusTestP.ViewModel
         {
             if (disposing)
             {
-                _dataService.ModbusTCP.Dispose();
+                _dataService.ModbusTCP?.Dispose();
+                _dataService.ModbusIP?.Dispose();
+                _dataService.ModbusMaster?.Dispose();
+                _dataService.ModbusSlave?.Dispose();
             }
         }
 
-        ~MainViewModel()
+        public override void Cleanup()
         {
-            Dispose(false);
+           // Clean up if needed
+           Dispose();
+
+           base.Cleanup();
         }
-
-        ////public override void Cleanup()
-        ////{
-        ////    // Clean up if needed
-
-        ////    base.Cleanup();
-        ////}
     }
 }
