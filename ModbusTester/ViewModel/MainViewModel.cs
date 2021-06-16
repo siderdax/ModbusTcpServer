@@ -723,10 +723,14 @@ namespace ModbusTestP.ViewModel
         {
             if (disposing)
             {
-                _dataService.ModbusTCP?.Dispose();
-                _dataService.ModbusIP?.Dispose();
-                _dataService.ModbusMaster?.Dispose();
-                _dataService.ModbusSlave?.Dispose();
+                try
+                {
+                    _dataService.ModbusTCP?.Dispose();
+                    _dataService.ModbusIP?.Dispose();
+                    _dataService.ModbusMaster?.Dispose();
+                    _dataService.ModbusSlave?.Dispose();
+                }
+                catch { }
             }
         }
 
