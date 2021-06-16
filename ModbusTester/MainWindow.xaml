@@ -117,8 +117,8 @@
         <Label Content="Value :" Grid.Column="2" HorizontalAlignment="Left" Margin="150,49,0,0" VerticalAlignment="Top" IsEnabled="{Binding IsDisconnected, Converter={StaticResource BoolReverse}}"/>
         <TextBox Grid.Column="2" HorizontalAlignment="Left" Height="23" Margin="202,52,0,0" TextWrapping="Wrap" Text="{Binding ModWriteHoldingValue}" VerticalAlignment="Top" Width="88" IsEnabled="{Binding IsDisconnected, Converter={StaticResource BoolReverse}}"/>
         <Button Content="Write" Grid.Column="2" HorizontalAlignment="Left" Margin="299,52,0,0" VerticalAlignment="Top" Width="71" Height="23" Command="{Binding WriteHoldingCmd, Mode=OneWay}" IsEnabled="{Binding IsDisconnected, Converter={StaticResource BoolReverse}}"/>
-        <Label Content="Holding Register" Grid.Column="2" HorizontalAlignment="Left" Margin="11,6,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" FontStyle="Italic"/>
-        <Label Content="Input Register" Grid.Column="3" HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" FontStyle="Italic"/>
+        <CheckBox Content="Holding Register" Grid.Column="2" HorizontalAlignment="Left" Margin="11,16,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" FontStyle="Italic" IsChecked="{Binding UseHoldingRegister}" IsEnabled="{Binding IsDisconnected}"/>
+        <CheckBox Content="Input Register" Grid.Column="3" HorizontalAlignment="Left" Margin="10,16,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" FontStyle="Italic" IsChecked="{Binding UseInputRegister}" IsEnabled="{Binding IsDisconnected}"/>
         <Button Content="Set" Grid.Column="3" HorizontalAlignment="Left" Margin="149,518,0,0" VerticalAlignment="Top" Width="75" Height="23" Command="{Binding SaveCmd, Mode=OneWay}"/>
 
     </Grid>

@@ -47,6 +47,8 @@ namespace ModbusTestP.ViewModel
         private bool _isDisconnected;
         private bool _isServerConnected;
         private bool _isClientConnected;
+        private bool _useHoldingRegister;
+        private bool _useInputRegister;
 
         /// Changes to that property's value raise the PropertyChanged event. 
         public string StatusText
@@ -156,6 +158,18 @@ namespace ModbusTestP.ViewModel
         {
             get => _isClientConnected;
             set => Set(ref _isClientConnected, value);
+        }
+
+        public bool UseHoldingRegister
+        {
+            get => _useHoldingRegister;
+            set => Set(ref _useHoldingRegister, value);
+        }
+
+        public bool UseInputRegister
+        {
+            get => _useInputRegister;
+            set => Set(ref _useInputRegister, value);
         }
 
         #endregion
@@ -377,6 +391,8 @@ namespace ModbusTestP.ViewModel
 
         public void WriteHoldingCmdMethod()
         {
+            if (!UseHoldingRegister) return;
+
             switch (SelectedTabIndex)
             {
                 case TAB_SERVER:
@@ -474,6 +490,8 @@ namespace ModbusTestP.ViewModel
 
         public void WriteInputCmdMethod()
         {
+            if (!UseInputRegister) return;
+
             if (ModWriteInputAddr <= 0xFFFF)
             {
                 if (SelectedTabIndex == TAB_SERVER)
@@ -502,8 +520,15 @@ namespace ModbusTestP.ViewModel
 
         private void ReadTimerTick(object sender, ElapsedEventArgs e)
         {
-            UpdateReadList(ModbusDataTypes.RD_INPUTREG);
-            UpdateReadList(ModbusDataTypes.RD_HOLDINGREG);
+            if (UseInputRegister)
+            {
+                UpdateReadList(ModbusDataTypes.RD_INPUTREG);
+            }
+
+            if (UseHoldingRegister)
+            {
+                UpdateReadList(ModbusDataTypes.RD_HOLDINGREG);
+            }
 
             (sender as Timer).Enabled = true;
         }
@@ -605,7 +630,7 @@ namespace ModbusTestP.ViewModel
             if (collection.Count() <= index)
             {
                 InvokeDispatcher(() => collection.Add(new ModbusDataValue(address, register)));
-                
+
             }
             else if (collection[index].Address != address || collection[index].Register != register)
             {
@@ -677,6 +702,9 @@ namespace ModbusTestP.ViewModel
             IsClientConnected = false;
             SelectedTabIndex = TAB_SERVER;
 
+            UseHoldingRegister = true;
+            UseInputRegister = true;
+
             // Timer
             _timer = new Timer(950)
             {
@@ -704,10 +732,10 @@ namespace ModbusTestP.ViewModel
 
         public override void Cleanup()
         {
-           // Clean up if needed
-           Dispose();
+            // Clean up if needed
+            Dispose();
 
-           base.Cleanup();
+            base.Cleanup();
         }
     }
 }
