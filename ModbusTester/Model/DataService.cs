@@ -4,7 +4,7 @@ using ModbusCom;
 namespace ModbusTestP.Model
 {
     public class DataService : IDataService
-    {    
+    {
         public ModbusTcp ModbusTCP { get; set; }
         public ModbusIp ModbusIP { get; set; }
         public ModbusSlave ModbusSlave { get; set; }
@@ -26,7 +26,7 @@ namespace ModbusTestP.Model
             };
             item.SetModbusWriteTypes(modbusWriteTypeSet);
 
-            item.SetDefaults(1, 18, 1, 0, 1, 0, 1);
+            item.SetDefaults(1, 18, 1, 0, 1, 0);
 
             callback(item, null);
         }

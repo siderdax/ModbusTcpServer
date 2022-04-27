@@ -26,7 +26,7 @@ namespace ModbusTestP.ViewModel
 
         private readonly IDataService _dataService;
 
-        private Timer _timer = null;
+        private readonly Timer _timer = null;
 
         #region Base properties
 
@@ -35,7 +35,6 @@ namespace ModbusTestP.ViewModel
         private string _ip = string.Empty;
         private string _com = string.Empty;
         private string _baud = string.Empty;
-        private byte _slaveId;
         private ushort _modStartReadAddr;
         private ushort _modReadAddrLength;
         private ushort _savedModStartReadAddr;
@@ -49,6 +48,7 @@ namespace ModbusTestP.ViewModel
         private bool _isClientConnected;
         private bool _useHoldingRegister;
         private bool _useInputRegister;
+        private byte _monitoredSlaveID;
 
         /// Changes to that property's value raise the PropertyChanged event. 
         public string StatusText
@@ -86,12 +86,6 @@ namespace ModbusTestP.ViewModel
         {
             get => _baud;
             set => Set(ref _baud, value);
-        }
-
-        public byte SlaveId
-        {
-            get => _slaveId;
-            set => Set(ref _slaveId, value);
         }
 
         public ushort ModStartReadAddr
@@ -172,6 +166,34 @@ namespace ModbusTestP.ViewModel
             set => Set(ref _useInputRegister, value);
         }
 
+        private ObservableCollection<byte> _slaveIdCollection;
+        public ObservableCollection<byte> SlaveIdCollection
+        {
+            get => _slaveIdCollection;
+            set => Set(ref _slaveIdCollection, value);
+        }
+
+        private byte _slaveIdInput;
+        public byte SlaveIdInput
+        {
+            get => _slaveIdInput;
+            set => Set(ref _slaveIdInput, value);
+        }
+
+        private string _currentSlaveID;
+        public string CurrentSlaveID
+        {
+            get => _currentSlaveID;
+            set => Set(ref _currentSlaveID, value);
+        }
+
+        private byte _slaveID;
+        public byte SlaveID
+        {
+            get => _slaveID;
+            set => Set(ref _slaveID, value);
+        }
+
         #endregion
 
         /// ListView status properties
@@ -201,6 +223,7 @@ namespace ModbusTestP.ViewModel
         public ICommand SaveCmd { get; private set; }
         public ICommand WriteHoldingCmd { get; private set; }
         public ICommand WriteInputCmd { get; private set; }
+        public ICommand EditSlaveIdCmd { get; private set; }
 
         #endregion
 
@@ -255,7 +278,12 @@ namespace ModbusTestP.ViewModel
             {
                 _dataService.ModbusTCP = new ModbusTcp(null, Port);
                 _dataService.ModbusTCP.StartServer();
-                _dataService.ModbusTCP.StartTcpSlave(SlaveId);
+
+                foreach (var id in SlaveIdCollection)
+                {
+                    _dataService.ModbusTCP.StartTcpSlave(id);
+                }
+
                 IsServerConnected = true;
             });
         }
@@ -275,11 +303,15 @@ namespace ModbusTestP.ViewModel
         {
             Connect(() =>
             {
-                int baud = 9600;
-                int.TryParse(Baud, out baud);
+                int.TryParse(Baud, out int baud);
                 _dataService.ModbusSlave = new ModbusSlave(Com, baud);
                 _dataService.ModbusSlave.StartSlave();
-                _dataService.ModbusSlave.StartSerialSlave(SlaveId);
+
+                foreach (var id in SlaveIdCollection)
+                {
+                    _dataService.ModbusSlave.StartSerialSlave(id);
+                }
+
                 IsServerConnected = true;
             });
         }
@@ -288,8 +320,7 @@ namespace ModbusTestP.ViewModel
         {
             Connect(() =>
             {
-                int baud = 9600;
-                int.TryParse(Baud, out baud);
+                int.TryParse(Baud, out int baud);
                 _dataService.ModbusMaster = new ModbusMaster(Com, baud);
                 _dataService.ModbusMaster.StartMaster();
                 _dataService.ModbusMaster.StartSerialMaster();
@@ -301,7 +332,11 @@ namespace ModbusTestP.ViewModel
         {
             Disconnect(() =>
             {
-                _dataService.ModbusTCP.StopTcpSlave(SlaveId);
+                foreach (var id in SlaveIdCollection)
+                {
+                    _dataService.ModbusTCP.StopTcpSlave(id);
+                }
+
                 _dataService.ModbusTCP.StopServer();
                 IsServerConnected = false;
             });
@@ -321,7 +356,11 @@ namespace ModbusTestP.ViewModel
         {
             Disconnect(() =>
             {
-                _dataService.ModbusSlave.StopSerialSlave(SlaveId);
+                foreach (var id in SlaveIdCollection)
+                {
+                    _dataService.ModbusSlave.StopSerialSlave(id);
+                }
+
                 _dataService.ModbusSlave.StopSlave();
                 IsServerConnected = false;
             });
@@ -374,6 +413,12 @@ namespace ModbusTestP.ViewModel
 
         public void SaveCmdMethod()
         {
+            if (SlaveID > 0 && SlaveID <= 240)
+            {
+                _monitoredSlaveID = SlaveID;
+                CurrentSlaveID = $"Slave ID[{SlaveID}] :";
+            }
+
             ModStartReadAddr = ModStartReadAddr > 0 ? ModStartReadAddr : (ushort)1;
             ModReadAddrLength = ModReadAddrLength > 0 ? ModReadAddrLength : (ushort)1;
             if (ModStartReadAddr + ModReadAddrLength > 0x10000)
@@ -417,7 +462,7 @@ namespace ModbusTestP.ViewModel
             if (ModWriteHoldingAddr <= 0xFFFF)
             {
                 _dataService.ModbusTCP.WriteTcpSlaveHoldingRegister(
-                    SlaveId, ModWriteHoldingAddr, ModWriteHoldingValue);
+                    _monitoredSlaveID, ModWriteHoldingAddr, ModWriteHoldingValue);
                 UpdateReadList(ModbusDataTypes.RD_HOLDINGREG);
                 StatusText = StatusMessages.WRITE_HOLDING_MSG_1 + ModWriteHoldingAddr +
                     StatusMessages.WRITE_HOLDING_MSG_2 + ModWriteHoldingValue;
@@ -435,7 +480,7 @@ namespace ModbusTestP.ViewModel
                 if (ModWriteHoldingAddr <= 0xFFFF)
                 {
                     _dataService.ModbusIP.WriteIpMasterHoldingRegister(
-                        SlaveId, ModWriteHoldingAddr, ModWriteHoldingValue);
+                        _monitoredSlaveID, ModWriteHoldingAddr, ModWriteHoldingValue);
                     StatusText = StatusMessages.WRITE_HOLDING_MSG_1 + ModWriteHoldingAddr +
                         StatusMessages.WRITE_HOLDING_MSG_2 + ModWriteHoldingValue;
                 }
@@ -455,7 +500,7 @@ namespace ModbusTestP.ViewModel
             if (ModWriteHoldingAddr <= 0xFFFF)
             {
                 _dataService.ModbusSlave.WriteSerialSlaveHoldingRegister(
-                    SlaveId, ModWriteHoldingAddr, ModWriteHoldingValue);
+                    _monitoredSlaveID, ModWriteHoldingAddr, ModWriteHoldingValue);
                 UpdateReadList(ModbusDataTypes.RD_HOLDINGREG);
                 StatusText = StatusMessages.WRITE_HOLDING_MSG_1 + ModWriteHoldingAddr +
                     StatusMessages.WRITE_HOLDING_MSG_2 + ModWriteHoldingValue;
@@ -473,7 +518,7 @@ namespace ModbusTestP.ViewModel
                 if (ModWriteHoldingAddr <= 0xFFFF)
                 {
                     _dataService.ModbusMaster.WriteSerialMasterHoldingRegister(
-                        SlaveId, ModWriteHoldingAddr, ModWriteHoldingValue);
+                        _monitoredSlaveID, ModWriteHoldingAddr, ModWriteHoldingValue);
                     StatusText = StatusMessages.WRITE_HOLDING_MSG_1 + ModWriteHoldingAddr +
                         StatusMessages.WRITE_HOLDING_MSG_2 + ModWriteHoldingValue;
                 }
@@ -496,11 +541,11 @@ namespace ModbusTestP.ViewModel
             {
                 if (SelectedTabIndex == TAB_SERVER)
                 {
-                    _dataService.ModbusTCP.WriteTcpSlaveInputRegister(SlaveId, ModWriteInputAddr, ModWriteInputValue);
+                    _dataService.ModbusTCP.WriteTcpSlaveInputRegister(_monitoredSlaveID, ModWriteInputAddr, ModWriteInputValue);
                 }
                 else
                 {
-                    _dataService.ModbusSlave.WriteSerialSlaveInputRegister(SlaveId, ModWriteInputAddr, ModWriteInputValue);
+                    _dataService.ModbusSlave.WriteSerialSlaveInputRegister(_monitoredSlaveID, ModWriteInputAddr, ModWriteInputValue);
                 }
 
                 UpdateReadList(ModbusDataTypes.RD_INPUTREG);
@@ -514,23 +559,47 @@ namespace ModbusTestP.ViewModel
             }
         }
 
+        public void EditSlaveIdCmdMethod(string parameter)
+        {
+            switch (parameter)
+            {
+                case "Add":
+                    if (SlaveIdInput > 0 && SlaveIdInput <= 240 && !SlaveIdCollection.Contains(SlaveIdInput))
+                    {
+                        SlaveIdCollection.Add(SlaveIdInput);
+                    }
+                    break;
+                case "Clear":
+                    SlaveIdCollection.Clear();
+                    SlaveIdCollection.Add(1);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
         #endregion
 
         /// Other Functions
 
         private void ReadTimerTick(object sender, ElapsedEventArgs e)
         {
-            if (UseInputRegister)
+            try
             {
-                UpdateReadList(ModbusDataTypes.RD_INPUTREG);
-            }
+                if (UseInputRegister)
+                {
+                    UpdateReadList(ModbusDataTypes.RD_INPUTREG);
+                }
 
-            if (UseHoldingRegister)
-            {
-                UpdateReadList(ModbusDataTypes.RD_HOLDINGREG);
+                if (UseHoldingRegister)
+                {
+                    UpdateReadList(ModbusDataTypes.RD_HOLDINGREG);
+                }
             }
+            catch { }
 
-            (sender as Timer).Enabled = true;
+            (sender as Timer).Enabled = !IsDisconnected;
         }
 
         private void UpdateReadList(byte fc)
@@ -575,12 +644,12 @@ namespace ModbusTestP.ViewModel
                             case ModbusDataTypes.RD_INPUTREG:
                                 list = ModReadInputList;
                                 data = _dataService.ModbusIP.ReadIpMasterInputRegisters(
-                                    SlaveId, SavedModStartReadAddr, SavedModReadAddrLength);
+                                    _monitoredSlaveID, SavedModStartReadAddr, SavedModReadAddrLength);
                                 break;
                             case ModbusDataTypes.RD_HOLDINGREG:
                                 list = ModReadHoldingList;
                                 data = _dataService.ModbusIP.ReadIpMasterHoldingRegisters(
-                                    SlaveId, SavedModStartReadAddr, SavedModReadAddrLength);
+                                    _monitoredSlaveID, SavedModStartReadAddr, SavedModReadAddrLength);
                                 break;
                         }
                         break;
@@ -590,12 +659,12 @@ namespace ModbusTestP.ViewModel
                             case ModbusDataTypes.RD_INPUTREG:
                                 list = ModReadInputList;
                                 data = _dataService.ModbusMaster.ReadSerialMasterInputRegisters(
-                                    SlaveId, SavedModStartReadAddr, SavedModReadAddrLength);
+                                    _monitoredSlaveID, SavedModStartReadAddr, SavedModReadAddrLength);
                                 break;
                             case ModbusDataTypes.RD_HOLDINGREG:
                                 list = ModReadHoldingList;
                                 data = _dataService.ModbusMaster.ReadSerialMasterHoldingRegisters(
-                                    SlaveId, SavedModStartReadAddr, SavedModReadAddrLength);
+                                    _monitoredSlaveID, SavedModStartReadAddr, SavedModReadAddrLength);
                                 break;
                         }
                         break;
@@ -607,7 +676,7 @@ namespace ModbusTestP.ViewModel
 
                     if (reader != null)
                     {
-                        UpdateReadItem(list, idx, address, reader(SlaveId, address));
+                        UpdateReadItem(list, idx, address, reader(_monitoredSlaveID, address));
                     }
                     else if (data != null)
                     {
@@ -637,7 +706,7 @@ namespace ModbusTestP.ViewModel
                 InvokeDispatcher(() =>
                 {
                     collection.RemoveAt(index);
-                    collection.Insert(index, new ModbusDataValue((ushort)address, register));
+                    collection.Insert(index, new ModbusDataValue(address, register));
                 });
             }
         }
@@ -682,7 +751,6 @@ namespace ModbusTestP.ViewModel
                     ModWriteHoldingValue = item.DefaultWriteHoldingValue;
                     ModWriteInputAddr = item.DefaultWriteInputAddr;
                     ModWriteInputValue = item.DefaultWriteInputValue;
-                    SlaveId = item.DefaultSlaveId;
                 });
 
             ConnectCmd = new RelayCommand(ConnectCmdMethod);
@@ -690,6 +758,13 @@ namespace ModbusTestP.ViewModel
             SaveCmd = new RelayCommand(SaveCmdMethod);
             WriteHoldingCmd = new RelayCommand(WriteHoldingCmdMethod);
             WriteInputCmd = new RelayCommand(WriteInputCmdMethod);
+            EditSlaveIdCmd = new RelayCommand<string>(EditSlaveIdCmdMethod);
+
+            SlaveIdCollection = new ObservableCollection<byte> { 1 };
+            SlaveIdInput = 2;
+            SlaveID = 1;
+            _monitoredSlaveID = SlaveID;
+            CurrentSlaveID = $"Slave ID[{SlaveID}] :";
 
             ModReadHoldingList = new ObservableCollection<ModbusDataValue>();
             ModReadInputList = new ObservableCollection<ModbusDataValue>();

@@ -67,12 +67,16 @@
             </TabItem>
             <TabItem Header="Slave">
                 <Grid Background="#FFE5E5E5" Margin="1,1,2,2">
-                    <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="88" Margin="11,17,0,0" Stroke="Black" VerticalAlignment="Top" Width="240"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="105*"/>
+                        <ColumnDefinition Width="29*"/>
+                    </Grid.ColumnDefinitions>
+                    <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="88" Margin="11,17,0,0" Stroke="Black" VerticalAlignment="Top" Width="240" Grid.ColumnSpan="2"/>
 
                     <Label Content="PORT &#x9;:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="19,31,0,0" Width="74"/>
-                    <TextBox HorizontalAlignment="Left" Height="23" Margin="95,34,0,0" TextWrapping="Wrap" Text="{Binding Com}" VerticalAlignment="Top" Width="146"/>
+                    <TextBox HorizontalAlignment="Left" Height="23" Margin="95,34,0,0" TextWrapping="Wrap" Text="{Binding Com}" VerticalAlignment="Top" Width="146" Grid.ColumnSpan="2"/>
                     <Label Content="BAUD&#x9;:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="19,62,0,0" Width="74"/>
-                    <TextBox HorizontalAlignment="Left" Height="24" Margin="95,65,0,0" TextWrapping="Wrap" Text="{Binding Baud}" VerticalAlignment="Top" Width="146"/>
+                    <TextBox HorizontalAlignment="Left" Height="24" Margin="95,65,0,0" TextWrapping="Wrap" Text="{Binding Baud}" VerticalAlignment="Top" Width="146" Grid.ColumnSpan="2"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Master">
@@ -85,6 +89,21 @@
                     <TextBox HorizontalAlignment="Left" Height="24" Margin="95,65,0,0" TextWrapping="Wrap" Text="{Binding Baud}" VerticalAlignment="Top" Width="146"/>
                 </Grid>
             </TabItem>
+            <TabItem Header="ID">
+                <DockPanel Background="#FFE5E5E5" Margin="1,1,2,2">
+                    <Border BorderThickness="2" BorderBrush="Black" Margin="10">
+                        <DockPanel Background="#FFF4F4F5">
+                            <StackPanel Margin="4">
+                                <TextBlock Text="Slave ID" VerticalAlignment="Center" Margin="0 0 0 4"/>
+                                <TextBox Margin="0 0 0 4" Text="{Binding SlaveIdInput}" TextAlignment="Center" />
+                                <Button Content="Add" Margin="0 0 0 4" Command="{Binding EditSlaveIdCmd}" CommandParameter="Add" />
+                                <Button Content="Clear" Command="{Binding EditSlaveIdCmd}" CommandParameter="Clear" />
+                            </StackPanel>
+                            <ListView Margin="0 4 4 4 " ItemsSource="{Binding SlaveIdCollection}" />
+                        </DockPanel>
+                    </Border>
+                </DockPanel>
+            </TabItem>
         </TabControl>
         <ListView Grid.Column="2" HorizontalAlignment="Left" Height="428" Margin="10,80,0,0" VerticalAlignment="Top" Width="360" ItemsSource="{Binding ModReadHoldingList}">
             <ListView.View>
@@ -95,10 +114,10 @@
             </ListView.View>
         </ListView>
         <Label Grid.Column="3" HorizontalAlignment="Left" Margin="2,37,0,0" VerticalAlignment="Top" Height="10" Width="10"/>
-        <Label Content="Starting Address :" Grid.Column="2" HorizontalAlignment="Left" Margin="141,515,0,0" VerticalAlignment="Top" Height="26" Width="107"/>
-        <TextBox Grid.Column="2" HorizontalAlignment="Left" Height="23" Margin="253,518,0,0" TextWrapping="Wrap" Text="{Binding ModStartReadAddr}" VerticalAlignment="Top" Width="91"/>
-        <Label Content="Length :" Grid.Column="2" HorizontalAlignment="Left" Margin="349,515,0,0" VerticalAlignment="Top" Width="65" Height="26" Grid.ColumnSpan="2"/>
-        <TextBox Grid.Column="3" HorizontalAlignment="Left" Height="23" Margin="37,518,0,0" TextWrapping="Wrap" Text="{Binding ModReadAddrLength}" VerticalAlignment="Top" Width="81"/>
+        <Label Content="Starting Address :" Grid.Column="2" HorizontalAlignment="Left" Margin="225,515,0,0" VerticalAlignment="Top" Height="26" Width="107"/>
+        <TextBox Grid.Column="2" HorizontalAlignment="Left" Height="23" Margin="337,518,0,0" TextWrapping="Wrap" Text="{Binding ModStartReadAddr}" VerticalAlignment="Top" Width="91" Grid.ColumnSpan="2"/>
+        <Label Content="Length :" Grid.Column="3" HorizontalAlignment="Left" Margin="51,515,0,0" VerticalAlignment="Top" Width="54" Height="26"/>
+        <TextBox Grid.Column="3" HorizontalAlignment="Left" Height="23" Margin="110,518,0,0" TextWrapping="Wrap" Text="{Binding ModReadAddrLength}" VerticalAlignment="Top" Width="48"/>
         <ListView Grid.Column="3" HorizontalAlignment="Left" Height="428" Margin="10,80,0,0" VerticalAlignment="Top" Width="360" ItemsSource="{Binding ModReadInputList}">
             <ListView.View>
                 <GridView>
@@ -119,7 +138,8 @@
         <Button Content="Write" Grid.Column="2" HorizontalAlignment="Left" Margin="299,52,0,0" VerticalAlignment="Top" Width="71" Height="23" Command="{Binding WriteHoldingCmd, Mode=OneWay}" IsEnabled="{Binding IsDisconnected, Converter={StaticResource BoolReverse}}"/>
         <CheckBox Content="Holding Register" Grid.Column="2" HorizontalAlignment="Left" Margin="11,16,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" FontStyle="Italic" IsChecked="{Binding UseHoldingRegister}" IsEnabled="{Binding IsDisconnected}"/>
         <CheckBox Content="Input Register" Grid.Column="3" HorizontalAlignment="Left" Margin="10,16,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" FontStyle="Italic" IsChecked="{Binding UseInputRegister}" IsEnabled="{Binding IsDisconnected}"/>
-        <Button Content="Set" Grid.Column="3" HorizontalAlignment="Left" Margin="149,518,0,0" VerticalAlignment="Top" Width="75" Height="23" Command="{Binding SaveCmd, Mode=OneWay}"/>
-
+        <Button Content="Set" Grid.Column="3" HorizontalAlignment="Left" Margin="202,518,0,0" VerticalAlignment="Top" Width="75" Height="23" Command="{Binding SaveCmd, Mode=OneWay}"/>
+        <Label Content="{Binding CurrentSlaveID}" Grid.Column="2" HorizontalAlignment="Left" Margin="86,515,0,0" VerticalAlignment="Top" Height="26" Width="82"/>
+        <TextBox Grid.Column="2" HorizontalAlignment="Left" Height="23" Margin="173,518,0,0" TextWrapping="Wrap" Text="{Binding SlaveID}" VerticalAlignment="Top" Width="47"/>
     </Grid>
 </Window>

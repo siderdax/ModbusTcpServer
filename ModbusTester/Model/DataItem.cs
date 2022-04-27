@@ -12,7 +12,6 @@
         public ushort DefaultWriteHoldingAddr { get; private set; }
         public ushort DefaultWriteInputValue { get; private set; }
         public ushort DefaultWriteInputAddr { get; private set; }
-        public byte DefaultSlaveId { get; private set; }
         public ModbusDataTypes[] ModbusReadTypes { get; private set; }
         public ModbusDataTypes[] ModbusWriteTypes { get; private set; }
 
@@ -42,8 +41,7 @@
         /// <param name="wia">Default Input register address</param>
         /// <param name="wiv">Default Input register value</param>
         /// <param name="slvid">Slave id</param>
-        public void SetDefaults(ushort sra, ushort srl, ushort wha, ushort whv,
-            ushort wia, ushort wiv, byte slvid)
+        public void SetDefaults(ushort sra, ushort srl, ushort wha, ushort whv, ushort wia, ushort wiv)
         {
             DefaultStartReadAddr = sra;
             DefaultReadAddrLength = srl;
@@ -51,7 +49,6 @@
             DefaultWriteHoldingValue = whv;
             DefaultWriteInputAddr = wia;
             DefaultWriteInputValue = wiv;
-            DefaultSlaveId = slvid;
         }
     }
 }
